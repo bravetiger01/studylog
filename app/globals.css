@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── base ── */
+*, *::before, *::after { box-sizing: border-box }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility }
+body { background: #F5F4F1; color: #1A1A1A; font-family: 'Inter', system-ui, sans-serif }
+
+/* ── scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px }
+::-webkit-scrollbar-track { background: transparent }
+::-webkit-scrollbar-thumb { background: #D8D8D4; border-radius: 99px }
+
+/* ── components ── */
+.card {
+  @apply bg-white border border-line rounded-xl p-4;
+}
+
+.btn {
+  @apply inline-flex items-center gap-1.5 rounded-lg border border-line bg-white
+         px-3 py-1.5 text-sm font-medium text-ink transition-all
+         hover:bg-bg hover:border-mute/40
+         focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2
+         disabled:opacity-40 disabled:cursor-not-allowed;
+}
+
+.btn-p {
+  @apply bg-brand text-white border-brand hover:bg-[#1f5848] hover:border-[#1f5848];
+}
+
+.inp {
+  @apply rounded-lg border border-line bg-white px-3 py-1.5 text-sm
+         placeholder:text-mute/60
+         focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-1
+         transition;
+}
+
+.num {
+  font-family: ui-monospace, 'Menlo', 'SF Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── selection ── */
+::selection { background: #276B5A22; color: #1A1A1A }
+
+/* ── checkbox accent ── */
+input[type="checkbox"] { accent-color: #276B5A }
