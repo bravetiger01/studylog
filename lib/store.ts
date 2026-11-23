@@ -14,12 +14,124 @@ export const mins=(s:string,e:string)=>{const f=(x:string)=>+x.slice(0,2)*60+ +x
 export const elapsed=(a:Active)=>a.accMs+(a.runningSince?Date.now()-a.runningSince:0);
 // Bump this version string whenever the seed data changes significantly.
 // If stored data has fewer tasks than the seed, it will be replaced.
-const SEED_VERSION = "2026-11-22-v2";
+const SEED_VERSION = "2026-11-23-adbms";
 const db=()=>new Promise<IDBDatabase>((ok,no)=>{const r=indexedDB.open("studylog",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 const load=async():Promise<Data|null>=>{const d=await db();return new Promise(ok=>{const q=d.transaction("kv").objectStore("kv").get("data");q.onsuccess=()=>ok(q.result??null);q.onerror=()=>ok(null)})};
 const loadVersion=async():Promise<string|null>=>{const d=await db();return new Promise(ok=>{const q=d.transaction("kv").objectStore("kv").get("seed_version");q.onsuccess=()=>ok(q.result??null);q.onerror=()=>ok(null)})};
 const save=async(v:Data)=>{const d=await db();const tx=d.transaction("kv","readwrite");const kv=tx.objectStore("kv");kv.put(v,"data");kv.put(SEED_VERSION,"seed_version")};
 const S=(id:string,name:string,abbr:string,color:string,priority:string):Subject=>({id,name,abbr,color,priority,chapters:[]});
+
+const adbmsChapters: Chapter[] = [
+ {
+  id: "adbms-c1",
+  name: "Chapter 1 — Database Architecture",
+  topics: [
+   "Client–Server Database Models",
+   "Concurrency Control Techniques",
+   "Lock-Based Protocols",
+   "Lock Granting Methods",
+   "Two-Phase Locking Protocol",
+   "Parallel Databases",
+   "Parallel Database Architecture",
+   "Types of Parallelism",
+   "Parallel Database Implementation Strategies",
+   "Distributed Databases",
+   "Distributed Database Architecture",
+   "Advantages of Distributed Databases",
+   "Issues and Challenges in Distributed Database Systems",
+  ].map((name, i) => ({ id: `adbms-c1-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "adbms-c2",
+  name: "Chapter 2 — Object-Based Databases and XML",
+  topics: [
+   "Object-Based Databases",
+   "Complex Data Types",
+   "Structured Types and Inheritance in SQL",
+   "Table Inheritance",
+   "Array and Multiset Types in SQL",
+   "Object Identity (OI)",
+   "Reference Types in SQL",
+   "Introduction to XML",
+   "Structure of XML Data",
+   "XML Document Schema",
+   "XPath",
+   "XQuery (FLWOR Expressions)",
+   "Joins",
+   "Nested Queries",
+   "Aggregate Functions",
+   "User-Defined Functions",
+  ].map((name, i) => ({ id: `adbms-c2-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "adbms-c3",
+  name: "Chapter 3 — Advanced Database Techniques",
+  topics: [
+   "Structured vs Unstructured Data",
+   "NoSQL Database Concepts",
+   "Types of NoSQL Databases",
+   "NoSQL Data Modeling",
+   "Advantages of NoSQL Databases",
+   "SQL vs NoSQL Database Systems",
+   "Introduction to MongoDB",
+   "MongoDB Shell",
+   "MongoDB Client",
+   "MongoDB Basic Operations",
+   "MongoDB Basic Data Types",
+   "MongoDB Arrays and Embedded Documents",
+   "Querying with MongoDB",
+   "find() Function",
+   "Projection of Fields",
+   "Query Criteria",
+   "OR Queries",
+   "Type-Specific Querying",
+   "Aggregation Concepts",
+   "Aggregation Pipeline",
+   "Aggregation Using MapReduce",
+   "Single-Purpose Aggregation Operations",
+  ].map((name, i) => ({ id: `adbms-c3-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "adbms-c4",
+  name: "Chapter 4 — Advanced Transaction Processing",
+  topics: [
+   "Basics of Transactions",
+   "ACID Properties",
+   "Transaction Processing Monitors",
+   "Transaction Processing Monitor Architecture",
+   "Transactional Workflows",
+   "Workflow Architectures",
+   "Recovery of Workflow",
+   "Real-Time Transaction Systems",
+   "Long-Duration Transactions",
+   "Implementation Issues",
+   "Transaction Nesting",
+   "Compensating Transactions",
+   "Concurrency",
+  ].map((name, i) => ({ id: `adbms-c4-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "adbms-c5",
+  name: "Chapter 5 — Modern Developments in Database Technologies",
+  topics: [
+   "Data Mining Techniques",
+   "Data Mining and Data Warehousing",
+   "Association Rules",
+   "Classification",
+   "Clustering",
+   "Applications of Data Mining",
+   "Business Intelligence",
+   "Features of Business Intelligence",
+   "Business Intelligence Frameworks",
+   "Machine Learning",
+   "Types of Machine Learning",
+   "Machine Learning Approaches",
+   "Multimedia Databases",
+   "Mobile Databases",
+   "Digital Databases",
+  ].map((name, i) => ({ id: `adbms-c5-t${i + 1}`, name, done: false })),
+ },
+];
 
 let _id=0;
 const id=()=>"t"+(_id++).toString().padStart(4,"0")+Math.random().toString(36).slice(2,5);
@@ -27,7 +139,7 @@ const id=()=>"t"+(_id++).toString().padStart(4,"0")+Math.random().toString(36).s
 export const seed=():Data=>{
  const subjects=[
   S("aad","Analysis and Design of Algorithms","AAD","#276B5A","High"),
-  S("adbms","Advanced Database Management Systems","ADBMS","#C65B55","Very High"),
+  {...S("adbms","Advanced Database Management Systems","ADBMS","#C65B55","Very High"), chapters: adbmsChapters},
   S("ds","Data Science","DS","#5685B8","High"),
   S("pm","Project Management","PM","#D89B54","Medium"),
   S("cs","Cyber Security","CS","#6F8A3D","Medium"),
@@ -228,15 +340,46 @@ export const useStore=create<St>((set,get)=>{
  return {...seed(),ready:false,
  hydrate:async()=>{
   const [d,ver]=await Promise.all([load(),loadVersion()]);
-  // Use fresh seed if: no data stored, OR seed version changed (new import data)
   const freshSeed=seed();
-  const shouldReset=!d||ver!==SEED_VERSION;
-  if(shouldReset){
-   // On first load or version bump: seed tasks+exams+subjects, but keep user sessions if any
-   const merged:Data={...freshSeed,sessions:d?.sessions??[],active:d?.active??null,settings:d?.settings??freshSeed.settings};
-   set({...merged,ready:true});save(merged);
+  if(!d){
+   set({...freshSeed,ready:true});save(freshSeed);
   } else {
-   set({...d,ready:true});
+   // If SEED_VERSION changed, update ADBMS chapters specifically while preserving
+   // tasks, sessions, exams, other subjects (e.g. AAD), and any already checked topic states!
+   const seedAdbms=freshSeed.subjects.find(s=>s.id==="adbms")!;
+   const currentAdbms=d.subjects?.find(s=>s.id==="adbms");
+   let updatedSubjects=d.subjects??freshSeed.subjects;
+
+   if(!currentAdbms || currentAdbms.chapters?.length !== 5 || ver!==SEED_VERSION){
+    const existingDone=new Map<string,boolean>();
+    currentAdbms?.chapters?.forEach(c=>c.topics?.forEach(t=>{ if(t.done) existingDone.set(t.name,true); }));
+
+    updatedSubjects=updatedSubjects.map(s=>{
+     if(s.id==="adbms"){
+      return {
+       ...seedAdbms,
+       chapters: seedAdbms.chapters.map(c=>({
+        ...c,
+        topics: c.topics.map(t=>({
+         ...t,
+         done: existingDone.get(t.name) ?? false
+        }))
+       }))
+      };
+     }
+     return s;
+    });
+   }
+
+   const merged:Data={
+    ...freshSeed,
+    ...d,
+    subjects: updatedSubjects,
+    sessions: d.sessions??[],
+    active: d.active??null,
+    settings: d.settings??freshSeed.settings
+   };
+   set({...merged,ready:true});save(merged);
   }
  },
  mut:f=>commit(f(pick(get()))),replace:d=>commit(d),

@@ -587,49 +587,69 @@ function Subjects() {
                   {!s.chapters.length && (
                     <p className="text-sm text-mute">No chapters yet. Add units from your syllabus below.</p>
                   )}
-                  {s.chapters.map((c: any) => (
-                    <div key={c.id} className="rounded-lg bg-surface border border-line p-3">
-                      <div className="flex justify-between text-sm font-semibold mb-2">
-                        {c.name}
-                        <button
-                          aria-label="Delete chapter"
-                          className="text-mute hover:text-danger transition"
-                          onClick={() => confirm("Delete chapter and its topics?") && upd(s.id, x => ({ ...x, chapters: x.chapters.filter((y: any) => y.id !== c.id) }))}
-                        >
-                          <Trash2 size={13} />
-                        </button>
+                  {s.chapters.map((c: any) => {
+                    const cDone = c.topics.filter((t: any) => t.done).length;
+                    const cTotal = c.topics.length;
+                    const cPct = cTotal ? Math.round((cDone / cTotal) * 100) : 0;
+                    return (
+                      <div key={c.id} className="rounded-lg bg-surface border border-line p-3">
+                        <div className="flex justify-between items-center text-sm font-semibold mb-1">
+                          <div className="flex items-center gap-2">
+                            <span>{c.name}</span>
+                            {cTotal > 0 && (
+                              <span className="text-xs text-mute font-normal num">
+                                {cDone}/{cTotal} ({cPct}%)
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            aria-label="Delete chapter"
+                            title="Delete chapter"
+                            className="text-mute hover:text-danger transition"
+                            onClick={() => confirm("Delete chapter and its topics?") && upd(s.id, x => ({ ...x, chapters: x.chapters.filter((y: any) => y.id !== c.id) }))}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                        {cTotal > 0 && (
+                          <div className="mb-2.5">
+                            <Bar v={cPct} c={s.color} thin />
+                          </div>
+                        )}
+                        <div className="space-y-0.5">
+                          {c.topics.map((topic: any) => (
+                            <label key={topic.id} className="flex items-center gap-2 text-sm py-0.5 cursor-pointer hover:bg-bg/60 rounded px-1 -mx-1 transition">
+                              <input
+                                type="checkbox"
+                                className="accent-brand"
+                                checked={topic.done}
+                                onChange={() => upd(s.id, x => ({
+                                  ...x,
+                                  chapters: x.chapters.map((y: any) => y.id === c.id
+                                    ? { ...y, topics: y.topics.map((z: any) => z.id === topic.id ? { ...z, done: !z.done } : z) }
+                                    : y)
+                                }))}
+                              />
+                              <span className={topic.done ? "line-through text-mute" : ""}>{topic.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                        <input
+                          className="inp mt-2 w-full text-xs"
+                          placeholder="Add topic, press Enter"
+                          value={txt[c.id] ?? ""}
+                          onChange={e => setTxt({ ...txt, [c.id]: e.target.value })}
+                          onKeyDown={e => {
+                            const v = (txt[c.id] ?? "").trim();
+                            if (e.key === "Enter" && v) {
+                              upd(s.id, x => ({ ...x, chapters: x.chapters.map((y: any) => y.id === c.id ? { ...y, topics: [...y.topics, { id: uid(), name: v, done: false }] } : y) }));
+                              setTxt({ ...txt, [c.id]: "" });
+                            }
+                          }}
+                        />
                       </div>
-                      {c.topics.map((topic: any) => (
-                        <label key={topic.id} className="flex items-center gap-2 text-sm py-0.5 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="accent-brand"
-                            checked={topic.done}
-                            onChange={() => upd(s.id, x => ({
-                              ...x,
-                              chapters: x.chapters.map((y: any) => y.id === c.id
-                                ? { ...y, topics: y.topics.map((z: any) => z.id === topic.id ? { ...z, done: !z.done } : z) }
-                                : y)
-                            }))}
-                          />
-                          <span className={topic.done ? "line-through text-mute" : ""}>{topic.name}</span>
-                        </label>
-                      ))}
-                      <input
-                        className="inp mt-2 w-full text-xs"
-                        placeholder="Add topic, press Enter"
-                        value={txt[c.id] ?? ""}
-                        onChange={e => setTxt({ ...txt, [c.id]: e.target.value })}
-                        onKeyDown={e => {
-                          const v = (txt[c.id] ?? "").trim();
-                          if (e.key === "Enter" && v) {
-                            upd(s.id, x => ({ ...x, chapters: x.chapters.map((y: any) => y.id === c.id ? { ...y, topics: [...y.topics, { id: uid(), name: v, done: false }] } : y) }));
-                            setTxt({ ...txt, [c.id]: "" });
-                          }
-                        }}
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                   <input
                     className="inp w-full"
                     placeholder="Add chapter / unit, press Enter"
