@@ -14,7 +14,7 @@ export const mins=(s:string,e:string)=>{const f=(x:string)=>+x.slice(0,2)*60+ +x
 export const elapsed=(a:Active)=>a.accMs+(a.runningSince?Date.now()-a.runningSince:0);
 // Bump this version string whenever the seed data changes significantly.
 // If stored data has fewer tasks than the seed, it will be replaced.
-const SEED_VERSION = "2026-11-23-adbms";
+const SEED_VERSION = "2026-11-24-ds";
 const db=()=>new Promise<IDBDatabase>((ok,no)=>{const r=indexedDB.open("studylog",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 const load=async():Promise<Data|null>=>{const d=await db();return new Promise(ok=>{const q=d.transaction("kv").objectStore("kv").get("data");q.onsuccess=()=>ok(q.result??null);q.onerror=()=>ok(null)})};
 const loadVersion=async():Promise<string|null>=>{const d=await db();return new Promise(ok=>{const q=d.transaction("kv").objectStore("kv").get("seed_version");q.onsuccess=()=>ok(q.result??null);q.onerror=()=>ok(null)})};
@@ -133,6 +133,135 @@ const adbmsChapters: Chapter[] = [
  },
 ];
 
+const dsChapters: Chapter[] = [
+ {
+  id: "ds-c1",
+  name: "Chapter 1 — Introduction to Data Science & Engineering",
+  topics: [
+   "Concept of Data Science",
+   "Data Engineering vs Analytics",
+   "Reporting vs Analytics",
+   "Introduction to Analytics Process",
+   "Types of Analytical Techniques",
+   "Traits of Big Data",
+   "Web Scrapping and Social Media Analytics",
+  ].map((name, i) => ({ id: `ds-c1-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "ds-c2",
+  name: "Chapter 2 — Python Essentials for Data Science",
+  topics: [
+   "Introduction to Python Programming",
+   "Python Data Structures",
+   "Vectorized Operations with NumPy",
+   "Data Manipulation and Cleaning with Pandas",
+   "Data Visualization with Matplotlib and Seaborn",
+  ].map((name, i) => ({ id: `ds-c2-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "ds-c3",
+  name: "Chapter 3 — Descriptive Analytics & Visualization",
+  topics: [
+   "Data Types and Measurement Scales",
+   "Population vs Sample",
+   "Percentile, Decile and Quartile",
+   "Measures of Variation and Shape",
+   "Visualization Techniques for Different Data Relations",
+  ].map((name, i) => ({ id: `ds-c3-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "ds-c4",
+  name: "Chapter 4 — Probability Recap",
+  topics: [
+   "Probability Theory Axioms",
+   "Random Variables",
+   "Probability Density Function (PDF)",
+   "Cumulative Distribution Function (CDF)",
+   "Key Probability Distributions",
+  ].map((name, i) => ({ id: `ds-c4-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "ds-c5",
+  name: "Chapter 5 — Sampling and Estimation",
+  topics: [
+   "Introduction to Sampling",
+   "Population Parameters and Sample Statistics",
+   "Probabilistic Sampling",
+   "Non-Probability Sampling",
+   "Sampling Distribution",
+   "Central Limit Theorem (CLT)",
+   "Sample Size",
+   "Classical Methods of Estimation",
+   "Estimating the Mean",
+   "Standard Error of a Point Estimate",
+   "Prediction Intervals",
+   "Tolerance Limits",
+   "Estimating the Variance",
+   "Estimating a Proportion for Single Mean",
+   "Difference Between Two Means",
+   "Difference Between Two Proportions for Two Samples",
+   "Maximum Likelihood Estimation",
+  ].map((name, i) => ({ id: `ds-c5-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "ds-c6",
+  name: "Chapter 6 — Simple Linear Regression and Correlation",
+  topics: [
+   "Introduction to Linear Regression",
+   "Simple Linear Regression Model",
+   "Least Squares and the Fitted Model",
+   "Properties of Least Squares Estimators",
+   "Inferences Concerning Regression Coefficients",
+   "Prediction",
+   "Simple Linear Regression Case Study",
+  ].map((name, i) => ({ id: `ds-c6-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "ds-c7",
+  name: "Chapter 7 — Logistic Regression",
+  topics: [
+   "Introduction to Classification Problems",
+   "Binary Logistic Regression",
+   "Estimation of Parameters in Logistic Regression",
+   "Interpretation of Logistic Regression Parameters",
+   "Logistic Regression Model Diagnostics",
+   "Classification Table",
+   "Sensitivity and Specificity",
+   "Optimal Cut-Off Probability",
+   "Variable Selection in Logistic Regression",
+   "Application of Logistic Regression in Credit Rating",
+   "Gain Chart and Lift Chart",
+  ].map((name, i) => ({ id: `ds-c7-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "ds-c8",
+  name: "Chapter 8 — Classification",
+  topics: [
+   "Overview of a Decision Tree",
+   "Chi-Square Automatic Interaction Detection (CHAID)",
+   "General Algorithm",
+   "Decision Cost-Based Splitting Criteria",
+   "ID3 Algorithm",
+   "Naïve Bayes",
+   "Bayes' Theorem",
+   "Naïve Bayes Classifier",
+   "Evaluating a Decision Tree",
+   "Classification and Regression Tree Ensemble Method",
+   "Random Forest",
+  ].map((name, i) => ({ id: `ds-c8-t${i + 1}`, name, done: false })),
+ },
+ {
+  id: "ds-c9",
+  name: "Chapter 9 — Applying Domain Expertise to Solve Real-World Problems Using Data Science",
+  topics: [
+   "Case Study: Data Science in Healthcare",
+   "Case Study: Customer Personality Analysis",
+   "Case Study: Data Science for Driving Growth in E-Commerce",
+   "Case Study: Data Science in Sentiment Analysis",
+  ].map((name, i) => ({ id: `ds-c9-t${i + 1}`, name, done: false })),
+ },
+];
+
 let _id=0;
 const id=()=>"t"+(_id++).toString().padStart(4,"0")+Math.random().toString(36).slice(2,5);
 
@@ -140,7 +269,7 @@ export const seed=():Data=>{
  const subjects=[
   S("aad","Analysis and Design of Algorithms","AAD","#276B5A","High"),
   {...S("adbms","Advanced Database Management Systems","ADBMS","#C65B55","Very High"), chapters: adbmsChapters},
-  S("ds","Data Science","DS","#5685B8","High"),
+  {...S("ds","Data Science","DS","#5685B8","High"), chapters: dsChapters},
   S("pm","Project Management","PM","#D89B54","Medium"),
   S("cs","Cyber Security","CS","#6F8A3D","Medium"),
   S("wad","Web Application Development","WAD","#8C6A4F","Medium"),
@@ -344,13 +473,15 @@ export const useStore=create<St>((set,get)=>{
   if(!d){
    set({...freshSeed,ready:true});save(freshSeed);
   } else {
-   // If SEED_VERSION changed, update ADBMS chapters specifically while preserving
+   // If SEED_VERSION changed, update ADBMS and DS chapters specifically while preserving
    // tasks, sessions, exams, other subjects (e.g. AAD), and any already checked topic states!
    const seedAdbms=freshSeed.subjects.find(s=>s.id==="adbms")!;
+   const seedDs=freshSeed.subjects.find(s=>s.id==="ds")!;
    const currentAdbms=d.subjects?.find(s=>s.id==="adbms");
+   const currentDs=d.subjects?.find(s=>s.id==="ds");
    let updatedSubjects=d.subjects??freshSeed.subjects;
 
-   if(!currentAdbms || currentAdbms.chapters?.length !== 5 || ver!==SEED_VERSION){
+   if(!currentAdbms || currentAdbms.chapters?.length !== 5){
     const existingDone=new Map<string,boolean>();
     currentAdbms?.chapters?.forEach(c=>c.topics?.forEach(t=>{ if(t.done) existingDone.set(t.name,true); }));
 
@@ -359,6 +490,27 @@ export const useStore=create<St>((set,get)=>{
       return {
        ...seedAdbms,
        chapters: seedAdbms.chapters.map(c=>({
+        ...c,
+        topics: c.topics.map(t=>({
+         ...t,
+         done: existingDone.get(t.name) ?? false
+        }))
+       }))
+      };
+     }
+     return s;
+    });
+   }
+
+   if(!currentDs || currentDs.chapters?.length !== 9 || ver!==SEED_VERSION){
+    const existingDone=new Map<string,boolean>();
+    currentDs?.chapters?.forEach(c=>c.topics?.forEach(t=>{ if(t.done) existingDone.set(t.name,true); }));
+
+    updatedSubjects=updatedSubjects.map(s=>{
+     if(s.id==="ds"){
+      return {
+       ...seedDs,
+       chapters: seedDs.chapters.map(c=>({
         ...c,
         topics: c.topics.map(t=>({
          ...t,
